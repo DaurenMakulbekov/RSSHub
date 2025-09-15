@@ -1,6 +1,10 @@
 package main
 
 import (
+	"RSSHub/internal/adapters/handlers"
+	"RSSHub/internal/adapters/repositories/postgres"
+	"RSSHub/internal/core/services"
+	"RSSHub/internal/infrastructure/config"
 	"context"
 	"flag"
 	"fmt"
@@ -30,6 +34,12 @@ func helpMessage() {
 func main() {
 	flag.Usage = helpMessage
 	flag.Parse()
+
+	var config = config.NewAppConfig()
+
+	var postgresRepository = postgres.NewPostgresRepository(config.DB)
+	var service = services.NewService(postgresRepository)
+	var handler = handlers.NewHandler(service)
 
 	signalCtx, signalCtxStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
 	defer signalCtxStop()
