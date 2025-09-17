@@ -8,7 +8,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"log"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -35,26 +37,48 @@ func main() {
 	flag.Usage = helpMessage
 	flag.Parse()
 
+	var args = os.Args
 	var config = config.NewAppConfig()
 
 	var postgresRepository = postgres.NewPostgresRepository(config.DB)
 	var service = services.NewService(postgresRepository)
 	var handler = handlers.NewHandler(service)
 
-	signalCtx, signalCtxStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
-	defer signalCtxStop()
+	command, err := handler.GetCommand(args[1:])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
-	//go func() {
+	switch command.Name {
+	case "add":
+		fmt.Println("Add: ", command.Add)
+	case "set-interval":
+		fmt.Println("SetInterval: ", command.SetInterval)
+		log.Printf("Interval of fetching feeds changed from () minutes to %s minutes\n", command.SetInterval.Duration)
+	case "set-workers":
+		fmt.Println("SetWorkers: ", command.SetWorkers)
+		log.Printf("Number of workers changed from () to %s\n", command.SetWorkers.Count)
+	case "list":
+		fmt.Println("List: ", command.List)
+	case "delete":
+		fmt.Println("Delete: ", command.Delete)
+	case "articles":
+		fmt.Println("Articles: ", command.ArticlesCommand)
+	case "fetch":
+		log.Println("The background process for fetching feeds has started (interval = 3 minutes, workers = 3)")
 
-	//}()
+		signalCtx, signalCtxStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
+		defer signalCtxStop()
 
-	<-signalCtx.Done()
+		<-signalCtx.Done()
 
-	log.Println("Shutting down process...")
-	time.Sleep(5 * time.Second)
+		log.Println("Shutting down process...")
+		time.Sleep(time.Second)
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	//defer cancel()
+		//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		//defer cancel()
 
-	log.Println("Graceful shutdown: aggregator stopped")
+		log.Println("Graceful shutdown: aggregator stopped")
+	}
 }

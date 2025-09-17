@@ -37,3 +37,42 @@ type Articles struct {
 	Updated     time.Time
 	FeedID      int
 }
+
+type Add struct {
+	Name string
+	Url  string
+}
+
+type SetInterval struct {
+	Duration string
+}
+
+type SetWorkers struct {
+	Count string
+}
+
+type List struct {
+	Num string
+}
+
+type Delete struct {
+	Name string
+}
+
+type ArticlesCommand struct {
+	FeedName string
+	Num      string
+}
+
+type Fetch struct{}
+
+type Commands struct {
+	Name string
+	Add
+	SetInterval
+	SetWorkers
+	List
+	Delete
+	ArticlesCommand
+	Fetch
+}

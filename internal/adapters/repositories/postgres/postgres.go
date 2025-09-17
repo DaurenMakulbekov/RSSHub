@@ -19,7 +19,7 @@ func NewPostgresRepository(config *config.DB) *postgresRepository {
 
 	db, err := sql.Open("pgx", url)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v", err)
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 	}
 
 	return &postgresRepository{
