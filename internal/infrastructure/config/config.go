@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"os"
+	"strings"
 )
 
 type DB struct {
@@ -22,31 +24,53 @@ type AppConfig struct {
 	Config *Config
 }
 
-func NewDB() *DB {
+func GetEnv() map[string]string {
+	var table = make(map[string]string)
+
+	buf, err := os.ReadFile(".env")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	}
+
+	var result = strings.Fields(string(buf))
+
+	for i := range result {
+		if strings.Contains(result[i], "=") {
+			var res = strings.Split(result[i], "=")
+			table[res[0]] = res[1]
+		}
+	}
+
+	return table
+}
+
+func NewDB(table map[string]string) *DB {
 	db := &DB{
-		Host:     os.Getenv("POSTGRES_HOST"),
-		Port:     os.Getenv("POSTGRES_PORT"),
-		User:     os.Getenv("POSTGRES_USER"),
-		Password: os.Getenv("POSTGRES_PASSWORD"),
-		Name:     os.Getenv("POSTGRES_DBNAME"),
+		Host:     table["POSTGRES_HOST"],
+		Port:     table["POSTGRES_PORT"],
+		User:     table["POSTGRES_USER"],
+		Password: table["POSTGRES_PASSWORD"],
+		Name:     table["POSTGRES_DBNAME"],
 	}
 
 	return db
 }
 
-func NewConfig() *Config {
+func NewConfig(table map[string]string) *Config {
 	var config = &Config{
-		Interval: os.Getenv("CLI_APP_TIMER_INTERVAL"),
-		Workers:  os.Getenv("CLI_APP_WORKERS_COUNT"),
+		Interval: table["CLI_APP_TIMER_INTERVAL"],
+		Workers:  table["CLI_APP_WORKERS_COUNT"],
 	}
 
 	return config
 }
 
 func NewAppConfig() *AppConfig {
+	var table = GetEnv()
+
 	config := &AppConfig{
-		DB:     NewDB(),
-		Config: NewConfig(),
+		DB:     NewDB(table),
+		Config: NewConfig(table),
 	}
 
 	return config
