@@ -10,4 +10,6 @@ FROM alpine
 
 COPY --from=builder /app/rsshub /rsshub
 
+COPY --from=builder /app/.env /.env
+
 CMD ["./rsshub"]
