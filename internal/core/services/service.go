@@ -1,6 +1,7 @@
 package services
 
 import (
+	"RSSHub/internal/core/domain"
 	"RSSHub/internal/core/ports"
 )
 
@@ -14,4 +15,10 @@ func NewService(postgresRepository ports.PostgresRepository) *service {
 	}
 
 	return service
+}
+
+func (service *service) AddFeed(feed domain.Feeds) error {
+	var err = service.postgres.AddFeed(feed)
+
+	return err
 }

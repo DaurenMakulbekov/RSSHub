@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"RSSHub/internal/core/domain"
 	"RSSHub/internal/infrastructure/config"
 )
 
@@ -25,4 +26,15 @@ func NewPostgresRepository(config *config.DB) *postgresRepository {
 	return &postgresRepository{
 		db: db,
 	}
+}
+
+func (postgresRepo *postgresRepository) AddFeed(feed domain.Feeds) error {
+	query := `INSERT INTO feeds (name, url) VALUES($1, $2)`
+
+	_, err := postgresRepo.db.Exec(query, feed.Name, feed.Url)
+	if err != nil {
+		return fmt.Errorf("Error: %v", err)
+	}
+
+	return nil
 }

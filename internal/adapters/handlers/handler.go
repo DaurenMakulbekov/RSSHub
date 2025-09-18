@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"RSSHub/internal/core/domain"
 	"RSSHub/internal/core/ports"
+	"fmt"
+	"os"
 )
 
 type handler struct {
@@ -14,4 +17,16 @@ func NewHandler(service ports.Service) *handler {
 	}
 
 	return handler
+}
+
+func (handler *handler) AddFeedHandler(add domain.Add) {
+	var feed = domain.Feeds{
+		Name: add.Name,
+		Url:  add.Url,
+	}
+
+	var err = handler.service.AddFeed(feed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+	}
 }

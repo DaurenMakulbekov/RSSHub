@@ -53,6 +53,7 @@ func main() {
 	switch command.Name {
 	case "add":
 		fmt.Println("Add: ", command.Add)
+		handler.AddFeedHandler(command.Add)
 	case "set-interval":
 		fmt.Println("SetInterval: ", command.SetInterval)
 		log.Printf("Interval of fetching feeds changed from () minutes to %s minutes\n", command.SetInterval.Duration)
