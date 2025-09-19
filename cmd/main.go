@@ -10,6 +10,7 @@ import (
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"log"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,7 +42,7 @@ func main() {
 	var config = config.NewAppConfig()
 
 	var postgresRepository = postgres.NewPostgresRepository(config.DB)
-	var service = services.NewService(postgresRepository)
+	var service = services.NewService(config.Config, postgresRepository)
 	var handler = handlers.NewHandler(service)
 
 	command, err := handler.GetCommand(args[1:])
@@ -55,6 +56,25 @@ func main() {
 		fmt.Println("Add: ", command.Add)
 		handler.AddFeedHandler(command.Add)
 	case "set-interval":
+		conn, err := net.Dial("tcp", "localhost:8080")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		defer conn.Close()
+
+		conn.Write([]byte("Message from client"))
+
+		var buf = make([]byte, 512)
+
+		sz, err := conn.Read(buf)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			return
+		}
+
+		fmt.Println(string(buf[:sz]))
+
 		fmt.Println("SetInterval: ", command.SetInterval)
 		log.Printf("Interval of fetching feeds changed from () minutes to %s minutes\n", command.SetInterval.Duration)
 	case "set-workers":
@@ -67,7 +87,41 @@ func main() {
 	case "articles":
 		fmt.Println("Articles: ", command.ArticlesCommand)
 	case "fetch":
+		listener, err := net.Listen("tcp", "localhost:8080")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: Background process is already running\n")
+			os.Exit(1)
+		}
+		defer listener.Close()
+
+		handler.FetchHandler()
 		log.Println("The background process for fetching feeds has started (interval = 3 minutes, workers = 3)")
+
+		go func() {
+			for {
+				conn, err := listener.Accept()
+				if err != nil {
+					//fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+					continue
+				}
+
+				go func() {
+					defer conn.Close()
+
+					var buf = make([]byte, 512)
+
+					sz, err := conn.Read(buf)
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+						return
+					}
+
+					fmt.Println(string(buf[:sz]))
+
+					conn.Write([]byte("Message from server"))
+				}()
+			}
+		}()
 
 		signalCtx, signalCtxStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGTSTP)
 		defer signalCtxStop()
@@ -75,7 +129,8 @@ func main() {
 		<-signalCtx.Done()
 
 		log.Println("Shutting down process...")
-		time.Sleep(time.Second)
+		service.Stop()
+		time.Sleep(5 * time.Second)
 
 		//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		//defer cancel()

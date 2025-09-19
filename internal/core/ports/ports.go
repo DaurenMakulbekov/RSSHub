@@ -10,4 +10,5 @@ type PostgresRepository interface {
 
 type Service interface {
 	AddFeed(feed domain.Feeds) error
+	Fetch() error
 }

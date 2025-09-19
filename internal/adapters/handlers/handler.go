@@ -30,3 +30,9 @@ func (handler *handler) AddFeedHandler(add domain.Add) {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 	}
 }
+
+func (handler *handler) FetchHandler() error {
+	var err = handler.service.Fetch()
+
+	return err
+}
