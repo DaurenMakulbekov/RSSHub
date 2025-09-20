@@ -173,3 +173,12 @@ func (service *service) GetFeeds() ([]domain.Feeds, error) {
 
 	return feeds, nil
 }
+
+func (service *service) GetArticles(name string) ([]domain.Articles, error) {
+	articles, err := service.postgres.GetArticlesByName(name)
+	if err != nil {
+		return articles, err
+	}
+
+	return articles, nil
+}

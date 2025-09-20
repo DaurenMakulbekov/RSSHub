@@ -164,3 +164,26 @@ func (handler *handler) ListHandler(command domain.List) {
 		fmt.Println()
 	}
 }
+
+func (handler *handler) ArticlesHandler(command domain.ArticlesCommand) {
+	articles, err := handler.service.GetArticles(command.FeedName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		return
+	}
+
+	//var index = len(articles) - command.Num
+	//if index >= 1 && index < len(articles) {
+	//	articles = articles[index:]
+	//}
+
+	fmt.Println("Feed: ", command.FeedName)
+	fmt.Println()
+
+	for i := range articles {
+		fmt.Print(i+1, ".")
+		fmt.Println(" ", "["+articles[i].Published+"]", articles[i].Title)
+		fmt.Println("   ", articles[i].Link)
+		fmt.Println()
+	}
+}

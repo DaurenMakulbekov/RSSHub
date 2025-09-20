@@ -58,6 +58,8 @@ func main() {
 		handler.DeleteHandler(command.Delete)
 	case "articles":
 		fmt.Println("Articles: ", command.ArticlesCommand)
+
+		handler.ArticlesHandler(command.ArticlesCommand)
 	case "fetch":
 		handler.FetchHandler()
 	}

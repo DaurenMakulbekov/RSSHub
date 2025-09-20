@@ -120,3 +120,27 @@ func (postgresRepo *postgresRepository) DeleteFeed(feed domain.Feeds) error {
 
 	return nil
 }
+
+func (postgresRepo *postgresRepository) GetArticlesByName(name string) ([]domain.Articles, error) {
+	var articles []domain.Articles
+
+	rows, err := postgresRepo.db.Query("SELECT title, link, published_at FROM articles WHERE feed_id = (SELECT id FROM feeds WHERE name = $1)", name)
+	if err != nil {
+		return nil, fmt.Errorf("Error: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var article domain.Articles
+
+		if err := rows.Scan(&article.Title, &article.Link, &article.Published); err != nil {
+			return nil, fmt.Errorf("Error: %v", err)
+		}
+		articles = append(articles, article)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("Error: %v", err)
+	}
+
+	return articles, nil
+}

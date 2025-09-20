@@ -11,6 +11,7 @@ type PostgresRepository interface {
 	WriteArticles(articles []domain.RSSItem, feed domain.Feeds) error
 	GetArticles(feed domain.Feeds) ([]domain.Articles, error)
 	DeleteFeed(feed domain.Feeds) error
+	GetArticlesByName(name string) ([]domain.Articles, error)
 }
 
 type Service interface {
@@ -21,4 +22,5 @@ type Service interface {
 	SetWorkers(workers int) int
 	DeleteFeed(feed domain.Feeds) error
 	GetFeeds() ([]domain.Feeds, error)
+	GetArticles(name string) ([]domain.Articles, error)
 }
