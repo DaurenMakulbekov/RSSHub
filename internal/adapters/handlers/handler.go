@@ -140,3 +140,27 @@ func (handler *handler) DeleteHandler(command domain.Delete) {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 	}
 }
+
+func (handler *handler) ListHandler(command domain.List) {
+	feeds, err := handler.service.GetFeeds()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		return
+	}
+
+	var index = len(feeds) - command.Num
+	if index >= 1 && index < len(feeds) {
+		feeds = feeds[index:]
+	}
+
+	fmt.Println("# Available RSS Feeds")
+	fmt.Println()
+
+	for i := range feeds {
+		fmt.Print(i+1, ".")
+		fmt.Println(" Name: ", feeds[i].Name)
+		fmt.Println("   URL: ", feeds[i].Url)
+		fmt.Println("   Added: ", feeds[i].Created)
+		fmt.Println()
+	}
+}

@@ -164,3 +164,12 @@ func (service *service) DeleteFeed(feed domain.Feeds) error {
 
 	return err
 }
+
+func (service *service) GetFeeds() ([]domain.Feeds, error) {
+	feeds, err := service.postgres.GetFeeds()
+	if err != nil {
+		return feeds, err
+	}
+
+	return feeds, nil
+}

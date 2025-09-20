@@ -20,4 +20,5 @@ type Service interface {
 	SetInterval(interval time.Duration) time.Duration
 	SetWorkers(workers int) int
 	DeleteFeed(feed domain.Feeds) error
+	GetFeeds() ([]domain.Feeds, error)
 }

@@ -52,7 +52,7 @@ type SetWorkers struct {
 }
 
 type List struct {
-	Num string
+	Num int
 }
 
 type Delete struct {

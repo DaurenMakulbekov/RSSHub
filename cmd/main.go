@@ -53,7 +53,7 @@ func main() {
 	case "set-workers":
 		handler.SetWorkersHandler(command)
 	case "list":
-		fmt.Println("List: ", command.List)
+		handler.ListHandler(command.List)
 	case "delete":
 		handler.DeleteHandler(command.Delete)
 	case "articles":

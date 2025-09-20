@@ -134,7 +134,17 @@ func GetList(args []string) (domain.Commands, error) {
 
 	for index := 0; index < len(args); index++ {
 		if args[index] == "--num" && len(args) > index+1 {
-			command.List.Num = args[index+1]
+			i, err := strconv.Atoi(args[index+1])
+
+			if err != nil {
+				return command, fmt.Errorf("Incorrect input")
+			}
+
+			if i < 1 {
+				return command, fmt.Errorf("Incorrect input")
+			}
+
+			command.List.Num = i
 		} else {
 			return command, fmt.Errorf("Incorrect input")
 		}
