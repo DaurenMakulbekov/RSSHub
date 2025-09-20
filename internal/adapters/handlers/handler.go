@@ -82,6 +82,10 @@ func (handler *handler) FetchHandler() {
 					var interval = handler.service.SetInterval(result.SetInterval.Duration)
 
 					log.Printf("Interval of fetching feeds changed from %s minutes to %s minutes\n", interval, result.SetInterval.Duration)
+				} else if result.Name == "set-workers" {
+					var workers = handler.service.SetWorkers(result.SetWorkers.Count)
+
+					log.Printf("Number of workers changed from %d to %d\n", workers, result.SetWorkers.Count)
 				}
 			}()
 		}
@@ -103,6 +107,18 @@ func (handler *handler) FetchHandler() {
 }
 
 func (handler *handler) SetIntervalHandler(command domain.Commands) {
+	conn, err := net.Dial("tcp", "localhost:8080")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer conn.Close()
+
+	result, _ := json.Marshal(command)
+	conn.Write(result)
+}
+
+func (handler *handler) SetWorkersHandler(command domain.Commands) {
 	conn, err := net.Dial("tcp", "localhost:8080")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)

@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"log"
 	"os"
 )
 
@@ -48,13 +47,11 @@ func main() {
 
 	switch command.Name {
 	case "add":
-		fmt.Println("Add: ", command.Add)
 		handler.AddFeedHandler(command.Add)
 	case "set-interval":
 		handler.SetIntervalHandler(command)
 	case "set-workers":
-		fmt.Println("SetWorkers: ", command.SetWorkers)
-		log.Printf("Number of workers changed from () to %s\n", command.SetWorkers.Count)
+		handler.SetWorkersHandler(command)
 	case "list":
 		fmt.Println("List: ", command.List)
 	case "delete":

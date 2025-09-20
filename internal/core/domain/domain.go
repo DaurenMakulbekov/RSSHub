@@ -48,7 +48,7 @@ type SetInterval struct {
 }
 
 type SetWorkers struct {
-	Count string `json:"count"`
+	Count int `json:"count"`
 }
 
 type List struct {

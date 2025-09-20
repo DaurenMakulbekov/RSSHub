@@ -136,6 +136,12 @@ func (service *service) Stop() {
 	close(service.done)
 }
 
+func (service *service) Fetch() {
+	service.ticker = time.NewTicker(service.interval * time.Second)
+
+	service.Start()
+}
+
 func (service *service) SetInterval(interval time.Duration) time.Duration {
 	var result = service.interval
 
@@ -145,8 +151,10 @@ func (service *service) SetInterval(interval time.Duration) time.Duration {
 	return result
 }
 
-func (service *service) Fetch() {
-	service.ticker = time.NewTicker(service.interval * time.Second)
+func (service *service) SetWorkers(workers int) int {
+	var result = service.workers
 
-	service.Start()
+	service.workers = workers
+
+	return result
 }

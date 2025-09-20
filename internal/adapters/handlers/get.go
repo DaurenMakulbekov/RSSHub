@@ -3,6 +3,7 @@ package handlers
 import (
 	"RSSHub/internal/core/domain"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -94,7 +95,19 @@ func GetSetWorkers(args []string) (domain.Commands, error) {
 
 	for index := 0; index < len(args); index++ {
 		if args[index] == "--count" && len(args) > index+1 {
-			command.SetWorkers.Count = args[index+1]
+			i, err := strconv.Atoi(args[index+1])
+
+			if err != nil {
+				return command, fmt.Errorf("Incorrect input")
+			}
+
+			if i < 1 {
+				return command, fmt.Errorf("Incorrect input")
+			} else if i > 100 {
+				return command, fmt.Errorf("Count must be between 1 and 100")
+			}
+
+			command.SetWorkers.Count = i
 		} else {
 			return command, fmt.Errorf("Incorrect input")
 		}

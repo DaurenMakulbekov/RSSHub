@@ -17,4 +17,5 @@ type Service interface {
 	Fetch()
 	Stop()
 	SetInterval(interval time.Duration) time.Duration
+	SetWorkers(workers int) int
 }
