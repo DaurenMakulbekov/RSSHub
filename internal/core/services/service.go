@@ -4,7 +4,10 @@ import (
 	"RSSHub/internal/core/domain"
 	"RSSHub/internal/core/ports"
 	"RSSHub/internal/infrastructure/config"
+	"encoding/xml"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -43,6 +46,64 @@ func (service *service) AddFeed(feed domain.Feeds) error {
 	return err
 }
 
+func (service *service) Worker(jobs <-chan domain.Feeds) {
+	go func() {
+		for feed := range jobs {
+			response, err := http.Get(feed.Url)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				return
+			}
+			defer response.Body.Close()
+
+			res, err := io.ReadAll(response.Body)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			}
+
+			var result domain.RSSFeed
+
+			err = xml.Unmarshal(res, &result)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			}
+
+			articles, err := service.postgres.GetArticles(feed)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			}
+
+			if len(articles) == 0 {
+				err = service.postgres.WriteArticles(result.Channel.Item, feed)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				}
+			} else {
+				var resultWrite []domain.RSSItem
+				var has bool
+
+				for i := range result.Channel.Item {
+					has = false
+					for j := range articles {
+						if result.Channel.Item[i].Title == articles[j].Title {
+							has = true
+							break
+						}
+					}
+					if !has {
+						resultWrite = append(resultWrite, result.Channel.Item[i])
+					}
+				}
+
+				err = service.postgres.WriteArticles(resultWrite, feed)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				}
+			}
+		}
+	}()
+}
+
 func (service *service) Start() {
 	go func() {
 		for {
@@ -50,6 +111,21 @@ func (service *service) Start() {
 			case <-service.done:
 				return
 			case <-service.ticker.C:
+				feeds, err := service.postgres.GetFeeds()
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%v\n", err)
+				}
+
+				var jobs = make(chan domain.Feeds)
+
+				for i := 0; i < service.workers; i++ {
+					service.Worker(jobs)
+				}
+
+				for j := range feeds {
+					jobs <- feeds[j]
+				}
+				close(jobs)
 			}
 		}
 	}()
@@ -71,10 +147,8 @@ func (service *service) Reset() {
 	service.ticker.Reset(service.interval * time.Second)
 }
 
-func (service *service) Fetch() error {
+func (service *service) Fetch() {
 	service.ticker = time.NewTicker(service.interval * time.Second)
 
 	service.Start()
-
-	return nil
 }

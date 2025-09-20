@@ -6,9 +6,13 @@ import (
 
 type PostgresRepository interface {
 	AddFeed(feed domain.Feeds) error
+	GetFeeds() ([]domain.Feeds, error)
+	WriteArticles(articles []domain.RSSItem, feed domain.Feeds) error
+	GetArticles(feed domain.Feeds) ([]domain.Articles, error)
 }
 
 type Service interface {
 	AddFeed(feed domain.Feeds) error
-	Fetch() error
+	Fetch()
+	Stop()
 }
