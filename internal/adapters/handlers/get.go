@@ -3,6 +3,8 @@ package handlers
 import (
 	"RSSHub/internal/core/domain"
 	"fmt"
+	"strings"
+	"time"
 )
 
 func GetAdd(args []string) (domain.Commands, error) {
@@ -59,7 +61,13 @@ func GetSetInterval(args []string) (domain.Commands, error) {
 
 	for index := 0; index < len(args); index++ {
 		if args[index] == "--duration" && len(args) > index+1 {
-			command.SetInterval.Duration = args[index+1]
+			s, err := time.ParseDuration(args[index+1])
+
+			if err != nil || strings.Contains(args[index+1], "-") {
+				return command, fmt.Errorf("Incorrect input")
+			}
+
+			command.SetInterval.Duration = time.Duration(s.Seconds())
 		} else {
 			return command, fmt.Errorf("Incorrect input")
 		}

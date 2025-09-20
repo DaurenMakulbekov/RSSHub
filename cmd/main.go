@@ -9,7 +9,6 @@ import (
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"log"
-	"net"
 	"os"
 )
 
@@ -52,27 +51,7 @@ func main() {
 		fmt.Println("Add: ", command.Add)
 		handler.AddFeedHandler(command.Add)
 	case "set-interval":
-		conn, err := net.Dial("tcp", "localhost:8080")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-		defer conn.Close()
-
-		conn.Write([]byte("Message from client"))
-
-		var buf = make([]byte, 512)
-
-		sz, err := conn.Read(buf)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			return
-		}
-
-		fmt.Println(string(buf[:sz]))
-
-		fmt.Println("SetInterval: ", command.SetInterval)
-		log.Printf("Interval of fetching feeds changed from () minutes to %s minutes\n", command.SetInterval.Duration)
+		handler.SetIntervalHandler(command)
 	case "set-workers":
 		fmt.Println("SetWorkers: ", command.SetWorkers)
 		log.Printf("Number of workers changed from () to %s\n", command.SetWorkers.Count)

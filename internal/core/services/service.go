@@ -136,15 +136,13 @@ func (service *service) Stop() {
 	close(service.done)
 }
 
-func (service *service) Reset() {
-	s, err := time.ParseDuration("1s")
+func (service *service) SetInterval(interval time.Duration) time.Duration {
+	var result = service.interval
 
-	if err != nil || strings.Contains("1s", "-") {
-		fmt.Fprintln(os.Stderr, "Error: incorrect input")
-	}
-
-	service.interval = time.Duration(s.Seconds())
+	service.interval = interval
 	service.ticker.Reset(service.interval * time.Second)
+
+	return result
 }
 
 func (service *service) Fetch() {

@@ -4,11 +4,13 @@ import (
 	"RSSHub/internal/core/domain"
 	"RSSHub/internal/core/ports"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -52,7 +54,7 @@ func (handler *handler) FetchHandler() {
 		for {
 			conn, err := listener.Accept()
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				//fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				continue
 			}
 
@@ -67,9 +69,20 @@ func (handler *handler) FetchHandler() {
 					return
 				}
 
-				fmt.Println(string(buf[:sz]))
+				var result domain.Commands
 
-				conn.Write([]byte("Message from server"))
+				decoder := json.NewDecoder(strings.NewReader(string(buf[:sz])))
+
+				err = decoder.Decode(&result)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "Error decode: ", err)
+				}
+
+				if result.Name == "set-interval" {
+					var interval = handler.service.SetInterval(result.SetInterval.Duration)
+
+					log.Printf("Interval of fetching feeds changed from %s minutes to %s minutes\n", interval, result.SetInterval.Duration)
+				}
 			}()
 		}
 	}()
@@ -87,4 +100,16 @@ func (handler *handler) FetchHandler() {
 	//defer cancel()
 
 	log.Println("Graceful shutdown: aggregator stopped")
+}
+
+func (handler *handler) SetIntervalHandler(command domain.Commands) {
+	conn, err := net.Dial("tcp", "localhost:8080")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer conn.Close()
+
+	result, _ := json.Marshal(command)
+	conn.Write(result)
 }

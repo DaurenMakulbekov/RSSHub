@@ -44,11 +44,11 @@ type Add struct {
 }
 
 type SetInterval struct {
-	Duration string
+	Duration time.Duration `json:"duration"`
 }
 
 type SetWorkers struct {
-	Count string
+	Count string `json:"count"`
 }
 
 type List struct {
@@ -67,12 +67,12 @@ type ArticlesCommand struct {
 type Fetch struct{}
 
 type Commands struct {
-	Name string
-	Add
-	SetInterval
-	SetWorkers
-	List
-	Delete
-	ArticlesCommand
-	Fetch
+	Name            string `json:"name"`
+	Add             `json:"add"`
+	SetInterval     `json:"set-interval"`
+	SetWorkers      `json:"set-workers"`
+	List            `json:"list"`
+	Delete          `json:"delete"`
+	ArticlesCommand `json:"articlesCommand"`
+	Fetch           `json:"fetch"`
 }

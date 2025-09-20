@@ -2,6 +2,7 @@ package ports
 
 import (
 	"RSSHub/internal/core/domain"
+	"time"
 )
 
 type PostgresRepository interface {
@@ -15,4 +16,5 @@ type Service interface {
 	AddFeed(feed domain.Feeds) error
 	Fetch()
 	Stop()
+	SetInterval(interval time.Duration) time.Duration
 }

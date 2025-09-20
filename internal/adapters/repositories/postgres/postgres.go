@@ -18,13 +18,6 @@ func NewPostgresRepository(config *config.DB) *postgresRepository {
 		config.User, config.Password, config.Host, config.Port, config.Name,
 	)
 
-	/* Test Postgres */
-	//fmt.Println("DB Host: ", config.Host)
-	//if len(config.Host) == 0 {
-	url = "user=daurenmakulbekov password=main host=localhost port=5432 database=data sslmode=disable"
-	//}
-	/* Test */
-
 	db, err := sql.Open("pgx", url)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
