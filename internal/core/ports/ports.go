@@ -10,6 +10,7 @@ type PostgresRepository interface {
 	GetFeeds() ([]domain.Feeds, error)
 	WriteArticles(articles []domain.RSSItem, feed domain.Feeds) error
 	GetArticles(feed domain.Feeds) ([]domain.Articles, error)
+	DeleteFeed(feed domain.Feeds) error
 }
 
 type Service interface {
@@ -18,4 +19,5 @@ type Service interface {
 	Stop()
 	SetInterval(interval time.Duration) time.Duration
 	SetWorkers(workers int) int
+	DeleteFeed(feed domain.Feeds) error
 }

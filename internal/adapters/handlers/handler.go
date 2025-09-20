@@ -129,3 +129,14 @@ func (handler *handler) SetWorkersHandler(command domain.Commands) {
 	result, _ := json.Marshal(command)
 	conn.Write(result)
 }
+
+func (handler *handler) DeleteHandler(command domain.Delete) {
+	var feed = domain.Feeds{
+		Name: command.Name,
+	}
+
+	var err = handler.service.DeleteFeed(feed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+	}
+}

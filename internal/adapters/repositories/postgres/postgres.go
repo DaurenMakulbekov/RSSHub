@@ -109,3 +109,14 @@ func (postgresRepo *postgresRepository) GetArticles(feed domain.Feeds) ([]domain
 
 	return articles, nil
 }
+
+func (postgresRepo *postgresRepository) DeleteFeed(feed domain.Feeds) error {
+	query := "DELETE FROM feeds WHERE name = $1"
+
+	_, err := postgresRepo.db.Exec(query, feed.Name)
+	if err != nil {
+		return fmt.Errorf("Error: %v", err)
+	}
+
+	return nil
+}

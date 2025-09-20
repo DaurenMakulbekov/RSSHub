@@ -158,3 +158,9 @@ func (service *service) SetWorkers(workers int) int {
 
 	return result
 }
+
+func (service *service) DeleteFeed(feed domain.Feeds) error {
+	var err = service.postgres.DeleteFeed(feed)
+
+	return err
+}

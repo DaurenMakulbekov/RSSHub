@@ -55,7 +55,7 @@ func main() {
 	case "list":
 		fmt.Println("List: ", command.List)
 	case "delete":
-		fmt.Println("Delete: ", command.Delete)
+		handler.DeleteHandler(command.Delete)
 	case "articles":
 		fmt.Println("Articles: ", command.ArticlesCommand)
 	case "fetch":
