@@ -1,8 +1,9 @@
 package ports
 
 import (
-	"RSSHub/internal/core/domain"
 	"time"
+
+	"RSSHub/internal/core/domain"
 )
 
 type PostgresRepository interface {

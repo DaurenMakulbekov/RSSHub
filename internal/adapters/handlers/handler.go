@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"RSSHub/internal/core/domain"
-	"RSSHub/internal/core/ports"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -13,6 +11,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"RSSHub/internal/core/domain"
+	"RSSHub/internal/core/ports"
 )
 
 type handler struct {
@@ -20,7 +21,7 @@ type handler struct {
 }
 
 func NewHandler(service ports.Service) *handler {
-	var handler = &handler{
+	handler := &handler{
 		service: service,
 	}
 
@@ -28,12 +29,12 @@ func NewHandler(service ports.Service) *handler {
 }
 
 func (handler *handler) AddFeedHandler(add domain.Add) {
-	var feed = domain.Feeds{
+	feed := domain.Feeds{
 		Name: add.Name,
 		Url:  add.Url,
 	}
 
-	var err = handler.service.AddFeed(feed)
+	err := handler.service.AddFeed(feed)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 	}
@@ -54,14 +55,14 @@ func (handler *handler) FetchHandler() {
 		for {
 			conn, err := listener.Accept()
 			if err != nil {
-				//fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+				// fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 				continue
 			}
 
 			go func() {
 				defer conn.Close()
 
-				var buf = make([]byte, 512)
+				buf := make([]byte, 512)
 
 				sz, err := conn.Read(buf)
 				if err != nil {
@@ -79,11 +80,11 @@ func (handler *handler) FetchHandler() {
 				}
 
 				if result.Name == "set-interval" {
-					var interval = handler.service.SetInterval(result.SetInterval.Duration)
+					interval := handler.service.SetInterval(result.SetInterval.Duration)
 
 					log.Printf("Interval of fetching feeds changed from %s minutes to %s minutes\n", interval, result.SetInterval.Duration)
 				} else if result.Name == "set-workers" {
-					var workers = handler.service.SetWorkers(result.SetWorkers.Count)
+					workers := handler.service.SetWorkers(result.SetWorkers.Count)
 
 					log.Printf("Number of workers changed from %d to %d\n", workers, result.SetWorkers.Count)
 				}
@@ -100,8 +101,8 @@ func (handler *handler) FetchHandler() {
 	handler.service.Stop()
 	time.Sleep(5 * time.Second)
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	//defer cancel()
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
 
 	log.Println("Graceful shutdown: aggregator stopped")
 }
@@ -131,11 +132,11 @@ func (handler *handler) SetWorkersHandler(command domain.Commands) {
 }
 
 func (handler *handler) DeleteHandler(command domain.Delete) {
-	var feed = domain.Feeds{
+	feed := domain.Feeds{
 		Name: command.Name,
 	}
 
-	var err = handler.service.DeleteFeed(feed)
+	err := handler.service.DeleteFeed(feed)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 	}
@@ -148,7 +149,7 @@ func (handler *handler) ListHandler(command domain.List) {
 		return
 	}
 
-	var index = len(feeds) - command.Num
+	index := len(feeds) - command.Num
 	if index >= 1 && index < len(feeds) {
 		feeds = feeds[index:]
 	}
@@ -172,10 +173,10 @@ func (handler *handler) ArticlesHandler(command domain.ArticlesCommand) {
 		return
 	}
 
-	//var index = len(articles) - command.Num
-	//if index >= 1 && index < len(articles) {
-	//	articles = articles[index:]
-	//}
+	index := len(articles) - command.Num
+	if index >= 1 && index < len(articles) {
+		articles = articles[index:]
+	}
 
 	fmt.Println("Feed: ", command.FeedName)
 	fmt.Println()

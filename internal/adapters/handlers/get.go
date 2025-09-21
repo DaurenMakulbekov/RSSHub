@@ -1,15 +1,16 @@
 package handlers
 
 import (
-	"RSSHub/internal/core/domain"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"RSSHub/internal/core/domain"
 )
 
 func GetAdd(args []string) (domain.Commands, error) {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name: "add",
 		Add:  domain.Add{},
 	}
@@ -38,7 +39,7 @@ func GetAdd(args []string) (domain.Commands, error) {
 }
 
 func GetFetch(args string) domain.Commands {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name: "fetch",
 	}
 
@@ -46,7 +47,7 @@ func GetFetch(args string) domain.Commands {
 }
 
 func GetSetInterval(args []string) (domain.Commands, error) {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name:        "set-interval",
 		SetInterval: domain.SetInterval{},
 	}
@@ -79,7 +80,7 @@ func GetSetInterval(args []string) (domain.Commands, error) {
 }
 
 func GetSetWorkers(args []string) (domain.Commands, error) {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name:       "set-workers",
 		SetWorkers: domain.SetWorkers{},
 	}
@@ -96,7 +97,6 @@ func GetSetWorkers(args []string) (domain.Commands, error) {
 	for index := 0; index < len(args); index++ {
 		if args[index] == "--count" && len(args) > index+1 {
 			i, err := strconv.Atoi(args[index+1])
-
 			if err != nil {
 				return command, fmt.Errorf("Incorrect input")
 			}
@@ -118,7 +118,7 @@ func GetSetWorkers(args []string) (domain.Commands, error) {
 }
 
 func GetList(args []string) (domain.Commands, error) {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name: "list",
 		List: domain.List{},
 	}
@@ -135,7 +135,6 @@ func GetList(args []string) (domain.Commands, error) {
 	for index := 0; index < len(args); index++ {
 		if args[index] == "--num" && len(args) > index+1 {
 			i, err := strconv.Atoi(args[index+1])
-
 			if err != nil {
 				return command, fmt.Errorf("Incorrect input")
 			}
@@ -155,7 +154,7 @@ func GetList(args []string) (domain.Commands, error) {
 }
 
 func GetDelete(args []string) (domain.Commands, error) {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name:   "delete",
 		Delete: domain.Delete{},
 	}
@@ -182,7 +181,7 @@ func GetDelete(args []string) (domain.Commands, error) {
 }
 
 func GetArticles(args []string) (domain.Commands, error) {
-	var command = domain.Commands{
+	command := domain.Commands{
 		Name:            "articles",
 		ArticlesCommand: domain.ArticlesCommand{},
 	}
@@ -200,11 +199,24 @@ func GetArticles(args []string) (domain.Commands, error) {
 		if args[index] == "--feed-name" && len(args) > index+1 {
 			command.ArticlesCommand.FeedName = args[index+1]
 		} else if args[index] == "--num" && len(args) > index+1 {
-			command.ArticlesCommand.Num = args[index+1]
+			i, err := strconv.Atoi(args[index+1])
+			if err != nil {
+				return command, fmt.Errorf("Incorrect input")
+			}
+
+			if i < 1 {
+				return command, fmt.Errorf("Incorrect input")
+			}
+
+			command.ArticlesCommand.Num = i
 		} else {
 			return command, fmt.Errorf("Incorrect input")
 		}
 		index++
+	}
+
+	if command.ArticlesCommand.Num == 0 {
+		command.ArticlesCommand.Num = 3
 	}
 
 	return command, nil

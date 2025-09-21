@@ -1,9 +1,6 @@
 package services
 
 import (
-	"RSSHub/internal/core/domain"
-	"RSSHub/internal/core/ports"
-	"RSSHub/internal/infrastructure/config"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -12,6 +9,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"RSSHub/internal/core/domain"
+	"RSSHub/internal/core/ports"
+	"RSSHub/internal/infrastructure/config"
 )
 
 type service struct {
@@ -30,7 +31,7 @@ func NewService(config *config.Config, postgresRepository ports.PostgresReposito
 		fmt.Fprintln(os.Stderr, "Error: incorrect input")
 	}
 
-	var service = &service{
+	service := &service{
 		postgres: postgresRepository,
 		interval: time.Duration(s.Seconds()),
 		workers:  i,
@@ -41,7 +42,7 @@ func NewService(config *config.Config, postgresRepository ports.PostgresReposito
 }
 
 func (service *service) AddFeed(feed domain.Feeds) error {
-	var err = service.postgres.AddFeed(feed)
+	err := service.postgres.AddFeed(feed)
 
 	return err
 }
@@ -116,7 +117,7 @@ func (service *service) Start() {
 					fmt.Fprintf(os.Stderr, "%v\n", err)
 				}
 
-				var jobs = make(chan domain.Feeds)
+				jobs := make(chan domain.Feeds)
 
 				for i := 0; i < service.workers; i++ {
 					service.Worker(jobs)
@@ -143,7 +144,7 @@ func (service *service) Fetch() {
 }
 
 func (service *service) SetInterval(interval time.Duration) time.Duration {
-	var result = service.interval
+	result := service.interval
 
 	service.interval = interval
 	service.ticker.Reset(service.interval * time.Second)
@@ -152,7 +153,7 @@ func (service *service) SetInterval(interval time.Duration) time.Duration {
 }
 
 func (service *service) SetWorkers(workers int) int {
-	var result = service.workers
+	result := service.workers
 
 	service.workers = workers
 
@@ -160,7 +161,7 @@ func (service *service) SetWorkers(workers int) int {
 }
 
 func (service *service) DeleteFeed(feed domain.Feeds) error {
-	var err = service.postgres.DeleteFeed(feed)
+	err := service.postgres.DeleteFeed(feed)
 
 	return err
 }

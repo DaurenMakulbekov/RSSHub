@@ -25,18 +25,18 @@ type AppConfig struct {
 }
 
 func GetEnv() map[string]string {
-	var table = make(map[string]string)
+	table := make(map[string]string)
 
 	buf, err := os.ReadFile(".env")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	}
 
-	var result = strings.Fields(string(buf))
+	result := strings.Fields(string(buf))
 
 	for i := range result {
 		if strings.Contains(result[i], "=") {
-			var res = strings.Split(result[i], "=")
+			res := strings.Split(result[i], "=")
 			table[res[0]] = res[1]
 		}
 	}
@@ -57,7 +57,7 @@ func NewDB(table map[string]string) *DB {
 }
 
 func NewConfig(table map[string]string) *Config {
-	var config = &Config{
+	config := &Config{
 		Interval: table["CLI_APP_TIMER_INTERVAL"],
 		Workers:  table["CLI_APP_WORKERS_COUNT"],
 	}
@@ -66,7 +66,7 @@ func NewConfig(table map[string]string) *Config {
 }
 
 func NewAppConfig() *AppConfig {
-	var table = GetEnv()
+	table := GetEnv()
 
 	config := &AppConfig{
 		DB:     NewDB(table),

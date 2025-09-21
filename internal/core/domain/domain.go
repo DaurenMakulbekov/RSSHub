@@ -61,7 +61,7 @@ type Delete struct {
 
 type ArticlesCommand struct {
 	FeedName string
-	Num      string
+	Num      int
 }
 
 type Fetch struct{}

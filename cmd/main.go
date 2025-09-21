@@ -1,14 +1,16 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"os"
+
 	"RSSHub/internal/adapters/handlers"
 	"RSSHub/internal/adapters/repositories/postgres"
 	"RSSHub/internal/core/services"
 	"RSSHub/internal/infrastructure/config"
-	"flag"
-	"fmt"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"os"
 )
 
 func helpMessage() {
@@ -32,12 +34,12 @@ func main() {
 	flag.Usage = helpMessage
 	flag.Parse()
 
-	var args = os.Args
-	var config = config.NewAppConfig()
+	args := os.Args
+	config := config.NewAppConfig()
 
-	var postgresRepository = postgres.NewPostgresRepository(config.DB)
-	var service = services.NewService(config.Config, postgresRepository)
-	var handler = handlers.NewHandler(service)
+	postgresRepository := postgres.NewPostgresRepository(config.DB)
+	service := services.NewService(config.Config, postgresRepository)
+	handler := handlers.NewHandler(service)
 
 	command, err := handler.GetCommand(args[1:])
 	if err != nil {
@@ -57,8 +59,6 @@ func main() {
 	case "delete":
 		handler.DeleteHandler(command.Delete)
 	case "articles":
-		fmt.Println("Articles: ", command.ArticlesCommand)
-
 		handler.ArticlesHandler(command.ArticlesCommand)
 	case "fetch":
 		handler.FetchHandler()
